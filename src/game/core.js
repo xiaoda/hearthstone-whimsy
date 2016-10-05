@@ -4,6 +4,7 @@ import helper from '../helper'
 
 /* 玩家类 */
 class Player {
+  /* 初始化 */
   constructor (game, rate = 50, level = 25, star = 0, streakNum = 0) {
     this.game = game // 游戏
     this.rate = rate // 胜率
@@ -16,6 +17,37 @@ class Player {
     this.winTotalNum = 0 // 获胜总场次
   }
 
+  /* 重置玩家数据 */
+  reset (options) {
+    Object.keys(options).forEach((key, index) => {
+      this[key] = options[key]
+    })
+    this.streak = this.streakNum >= this.game.streakNum
+    this.gameTotalNum = 0
+    this.winTotalNum = 0
+  }
+
+  /* 参数检查 */
+  _checkParams (num) {
+    let check = {
+      valid: true,
+      err: []
+    }
+    let throwErr = (field) => {
+      check.valid = false
+      check.err.push(field)
+    }
+    if (this.game.name !== 'hearthstone') throwErr('game')
+    if (this.rate > 100 || this.rate < 0) throwErr('rate')
+    if (!Number.isInteger(this.level) || this.level < 0 || this.level > 25) throwErr('level')
+    if (!check.err.includes('level')) {
+      let maxStar = this['game']['levels'][this.level]['stars']
+      if (!Number.isInteger(this.star) || this.star < 0 || this.star > maxStar) throwErr('star')
+    }
+    if (!Number.isInteger(num) || num < 0) throwErr('num')
+    return check
+  }
+
   /* 玩游戏（私有方法） */
   _play () {
     this.gameNum++
@@ -24,13 +56,18 @@ class Player {
     let result = this.game.round(this.rate) // 游戏结果
     let levels = this.game.levels
 
-    if (this['levelNum'][this.level] === undefined) this['levelNum'][this.level] = 1
-    else this['levelNum'][this.level]++
-
     if (result) {
       this.winNum++
       this.winTotalNum++
     }
+
+    if (this['levelDetail'][this.level] === undefined) {
+      this['levelDetail'][this.level] = {}
+      this['levelDetail'][this.level]['num'] = 0
+      this['levelDetail'][this.level]['win'] = 0
+    }
+    this['levelDetail'][this.level]['num']++
+    this['levelDetail'][this.level]['win'] += Number(result)
 
     /* 传说 */
     if (this.level === 0) {
@@ -83,6 +120,14 @@ class Player {
       }
     }
 
+    /* 最高等级 */
+    if (this.level < this.highest.level) {
+      this.highest.level = this.level
+      this.highest.star = this.star
+    } else if (this.level === this.highest.level) {
+      if (this.star > this.highest.star) this.highest.star = this.star
+    }
+
     /* 返回结果 */
     return {
       win: result,
@@ -93,22 +138,35 @@ class Player {
 
   /* 玩游戏（公共方法） */
   play (num = 1) {
+    let check = this._checkParams(num)
+    if (!check.valid) {
+      return {
+        status: 'paramsErr',
+        err: check.err
+      }
+    }
     this.gameNum = 0 // 场次
     this.winNum = 0 // 获胜场次
     this.legendNum = 0 // 上传说所用场次
-    this.levelNum = [] // 每个等级所用场次
+    this.levelDetail = [] // 每个等级所用场次
+    this.highest = {
+      level: 25,
+      star: 0
+    }
 
     let detail = []
     for (let i = 0; i <= num - 1; i++) {
       detail.push(this._play())
     }
     return {
+      status: 'success',
       level: this.level,
       star: this.star,
       gameNum: this.gameNum,
       legendNum: this.legendNum,
       realRate: this.winNum / this.gameNum * 100,
-      levelNum: this.levelNum,
+      levelDetail: this.levelDetail,
+      highest: this.highest,
       detail
     }
   }
@@ -117,6 +175,7 @@ class Player {
 /* 游戏类 */
 class Game {
   constructor () {
+    this.name = 'hearthstone'
     this.streakNum = 3 // 连胜需要场次
     this.levels = [
       {stars: 0, streak: false, degrade: false}, // 传说
