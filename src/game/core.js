@@ -94,7 +94,7 @@ class Player {
 
     /* 星星 */
     if (result) {
-      if (this.streak && this.star === 5) this.star++
+      if (this.streak && this.level === 6 && this.star === 5) this.star++
       else if (this.streak) this.star += 2
       else this.star++
     } else {

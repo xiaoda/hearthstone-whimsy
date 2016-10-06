@@ -35,6 +35,9 @@
         <span class="em">{{Number.parseInt(result.realRate)}}%</span>
       </p>
 
+      <h2>等级变化图</h2>
+      <div id="levelChart"></div>
+
       <h2>
         <span class="clickable" v-on:click="toggle.gameNum = !toggle.gameNum">
           战况详情(按场次)
@@ -110,6 +113,7 @@
 /* eslint-disable no-unused-vars */
 
 import {Game, Player} from '../game/core'
+import echarts from 'echarts'
 
 const DEFAULT = {
   rate: 55,
@@ -144,6 +148,55 @@ let calc = (rate, level, star, num) => {
     window.alert(`“${map[result['err'][0]]}”不对呢，改一下啦！`)
   }
 }
+let initLevelChart = (data) => {
+  setTimeout(() => {
+    let chart = echarts.init(document.getElementById('levelChart'))
+    let len = data.legendNum || data.detail.length
+    let xAxisData = new Array(len)
+    let seriesData = new Array(len)
+    for (let i = 0; i < len; i++) {
+      xAxisData[i] = i + 1
+      seriesData[i] = data['detail'][i]['level']
+    }
+    let option = {
+      title: {
+        text: ''
+      },
+      tooltip: {
+        formatter: function (param) {
+          return `${param.name}场 ${25 - param.data}级`
+        }
+      },
+      legend: {
+        data: ['等级']
+      },
+      xAxis: {
+        name: '场次',
+        data: xAxisData
+      },
+      yAxis: {
+        name: '等级',
+        interval: 1,
+        axisLabel: {
+          formatter: function (v) {
+            return 25 - v
+          }
+        }
+      },
+      series: [{
+        name: '等级',
+        type: 'line',
+        data: (function () {
+          while (len--) {
+            seriesData[len] = 25 - seriesData[len]
+          }
+          return seriesData
+        })()
+      }]
+    }
+    chart.setOption(option)
+  }, 0)
+}
 
 export default {
   data: function () {
@@ -154,20 +207,26 @@ export default {
       star: DEFAULT.star,
       num: DEFAULT.num,
       toggle: {
-        rule: true,
-        hypothesis: true,
         gameNum: true,
-        levelDetail: true
+        levelDetail: true,
+        rule: true,
+        hypothesis: true
       }
     }
   },
   created: function () {
     this.result = calc(this.rate, this.level, this.star, this.num)
+    initLevelChart(this.result)
   },
   methods: {
     calc: function () {
       let result = calc(this.rate, this.level, this.star, this.num)
-      if (result) this.result = result
+      if (result) {
+        this.result = result
+        this.toggle.gameNum = true
+        this.toggle.levelDetail = true
+        initLevelChart(this.result)
+      }
     },
     clear: function () {
       this.result = {}
@@ -209,5 +268,12 @@ button {outline: none; cursor: pointer;}
   border: 1px solid transparent;
   box-shadow: 0 0 20px #552c09;
   background-color: rgba(255, 255, 255, 0.7);
+}
+</style>
+
+<style scoped>
+#levelChart {
+  width: 600px;
+  height: 600px;
 }
 </style>
