@@ -1,26 +1,26 @@
 <template>
   <div class="page simulator-page">
-    <h1>传说模拟器</h1>
+    <h1>{{lang.h1}}</h1>
 
-    <h2>条件</h2>
+    <h2>{{lang.h2.condition}}</h2>
     <p>
       <strong>玩家胜率:</strong>
-      <input class="input-text" type="number" v-model="rate" v-on:keyup.enter="calc"/>%,
+      <input class="input-text" type="number" v-model="rate" v-on:keyup.enter="calc"/> %,
       <strong>初始等级:</strong>
-      <input class="input-text" type="number" v-model="level" v-on:keyup.enter="calc"/>级
-      <input class="input-text" type="number" v-model="star" v-on:keyup.enter="calc"/>星,
+      <input class="input-text" type="number" v-model="level" v-on:keyup.enter="calc"/> 级
+      <input class="input-text" type="number" v-model="star" v-on:keyup.enter="calc"/> 星,
       <strong>场次:</strong>
       <input class="input-text" type="number" v-model="num" v-on:keyup.enter="calc"/>
       <br/>
     </p>
     <div>
-      <button class="btn" v-on:click="calc">开始计算</button>
-      <button class="btn" v-on:click="clear">清空结果</button>
-      <button class="btn" v-on:click="reset">重置条件</button>
+      <button class="btn" style="margin-right: 5px;" v-on:click="calc">开始计算</button>
+      <button class="btn" style="margin-right: 5px;" v-on:click="clear">清空结果</button>
+      <button class="btn" style="margin-right: 5px;" v-on:click="reset">重置条件</button>
     </div>
 
     <div v-if="Object.keys(result).length">
-      <h2>结果</h2>
+      <h2>{{lang.h2.result}}</h2>
 
       <p>
         <strong>最终等级:</strong>
@@ -35,32 +35,12 @@
         <span class="em">{{Number.parseInt(result.realRate)}}%</span>
       </p>
 
-      <h2>等级变化图</h2>
+      <h2>{{lang.h2.chart}}</h2>
       <div id="levelChart"></div>
 
       <h2>
-        <span class="clickable" v-on:click="toggle.gameNum = !toggle.gameNum">
-          战况详情(按场次)
-          <span v-show="toggle.gameNum">+</span>
-          <span v-show="!toggle.gameNum">-</span>
-        </span>
-      </h2>
-      <ol>
-        <li
-          v-for="(item, index) in result.detail"
-          v-if="item.level !== 0 || (item.level === 0 && result['detail'][index - 1]['level'] !== 0)"
-          v-show="(toggle.gameNum && index + 1 <= 10) || (!toggle.gameNum)"
-        >
-          <strong>{{item.win ? '胜' : '负'}},</strong>
-          <span v-if="item.level === 0">传说</span>
-          <span v-else>{{item.level}}级{{item.star}}星</span>
-        </li>
-        <li v-show="toggle.gameNum && result.detail.length > 10">...</li>
-      </ol>
-
-      <h2>
         <span class="clickable" v-on:click="toggle.levelDetail = !toggle.levelDetail">
-          战况详情(按等级)
+          {{lang.h2.detailByLevel}}
           <span v-show="toggle.levelDetail">+</span>
           <span v-show="!toggle.levelDetail">-</span>
         </span>
@@ -80,38 +60,56 @@
         </li>
         <li v-show="toggle.levelDetail && result.levelDetail.filter((item, index) => index !== 0 && item !== undefined).length > 10">...</li>
       </ul>
+
+      <h2>
+        <span class="clickable" v-on:click="toggle.gameNum = !toggle.gameNum">
+          {{lang.h2.detailByRound}}
+          <span v-show="toggle.gameNum">+</span>
+          <span v-show="!toggle.gameNum">-</span>
+        </span>
+      </h2>
+      <ol>
+        <li
+          v-for="(item, index) in result.detail"
+          v-if="item.level !== 0 || (item.level === 0 && result['detail'][index - 1]['level'] !== 0)"
+          v-show="(toggle.gameNum && index + 1 <= 10) || (!toggle.gameNum)"
+        >
+          <strong>{{item.win ? '胜' : '负'}},</strong>
+          <span v-if="item.level === 0">传说</span>
+          <span v-else>{{item.level}}级{{item.star}}星</span>
+        </li>
+        <li v-show="toggle.gameNum && result.detail.length > 10">...</li>
+      </ol>
     </div>
 
     <h2>
       <span class="clickable" v-on:click="toggle.rule = !toggle.rule">
-        天梯规则
+        {{lang.h2.rule}}
         <span v-show="toggle.rule">+</span>
         <span v-show="!toggle.rule">-</span>
       </span>
     </h2>
     <ol v-show="!toggle.rule">
-      <li><strong>等级:</strong> 25级到1级，数字越小表示等级越高，1级以上为传说</li>
-      <li><strong>星星:</strong> 25级到21级每级2颗星，20级到16级3颗星，15级到11级4颗星，10级到1级5颗星；赢1局加1颗星，输1局减1颗星</li>
-      <li><strong>连胜:</strong> 25级到6级连胜3场后可获得连胜奖励，每赢1局得到2颗星(1颗星为额外奖励)</li>
-      <li><strong>升级/降级:</strong> 星星数超过当前等级最大数量则升级，小于0则降级；20级以下不降级</li>
+      <li v-for="item in lang.content.rule">
+        <strong>{{item.label}}:</strong> {{item.text}}
+      </li>
     </ol>
 
     <h2>
       <span class="clickable" v-on:click="toggle.hypothesis = !toggle.hypothesis">
-        假设
+        {{lang.h2.hypothesis}}
         <span v-show="toggle.hypothesis">+</span>
         <span v-show="!toggle.hypothesis">-</span>
       </span>
     </h2>
     <ol v-show="!toggle.hypothesis">
-      <li>玩家胜率稳定，不受等级等因素影响</li>
+      <li v-for="item in lang.content.hypothesis">{{item}}</li>
     </ol>
   </div>
 </template>
 
 <script>
-/* eslint-disable no-unused-vars */
-
+import lang from '../lang/simulator'
 import {Game, Player} from '../game/core'
 import echarts from 'echarts'
 
@@ -145,7 +143,7 @@ let calc = (rate, level, star, num) => {
       star: '星星',
       num: '场次'
     }
-    window.alert(`“${map[result['err'][0]]}”不对呢，改一下啦！`)
+    window.alert(`请填写正确的“${map[result['err'][0]]}”！`)
   }
 }
 let initLevelChart = (data) => {
@@ -179,7 +177,9 @@ let initLevelChart = (data) => {
         interval: 1,
         axisLabel: {
           formatter: function (v) {
-            return 25 - v
+            let level = 25 - v
+            if (level === 0) level = '传说'
+            return level
           }
         }
       },
@@ -201,6 +201,7 @@ let initLevelChart = (data) => {
 export default {
   data: function () {
     return {
+      lang: lang,
       result: {},
       rate: DEFAULT.rate,
       level: DEFAULT.level,

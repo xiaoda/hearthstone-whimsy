@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-
 import helper from '../helper'
 
 /* 玩家类 */
