@@ -1,6 +1,8 @@
-# hearthstone
+# hearthstone-whimsy（炉石奇想）
 
-> A Vue.js project
+> 出于对上传说有多难的好奇，给自己定个小目标，先做个[传说模拟器](http://hs.xiaoda.pw/)。
+
+> 自豪地使用[Vue2.0](https://vuejs.org/)搭建。
 
 ## Build Setup
 
@@ -13,15 +15,3 @@ npm run dev
 
 # build for production with minification
 npm run build
-
-# run unit tests
-npm run unit
-
-# run e2e tests
-npm run e2e
-
-# run all tests
-npm test
-```
-
-For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
