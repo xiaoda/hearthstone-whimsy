@@ -2,7 +2,7 @@
   <div class="page simulator-page">
     <h1>{{lang.h1}}</h1>
 
-    <h2>{{lang.h2.condition}}</h2>
+    <h2 style="margin-top: 20px;">{{lang.h2.condition}}</h2>
     <p>
       <strong>玩家胜率:</strong>
       <input class="input-text" type="number" v-model="rate" v-on:keyup.enter="calc"/> %,
@@ -24,15 +24,15 @@
 
       <p>
         <strong>最终等级:</strong>
-        <span v-if="result.level === 0"><span class="em">传说</span>({{result.legendNum}}场上传说),</span>
-        <span v-else><span class="em">{{result.level}}级{{result.star}}星</span>,</span>
+        <span v-if="result.level === 0"><span class="color-primary">传说</span>({{result.legendNum}}场上传说),</span>
+        <span v-else><span class="color-primary">{{result.level}}级{{result.star}}星</span>,</span>
         <span v-if="result.level !== 0">
           <strong>最高等级:</strong>
-          <span v-if="result.highest.level === 0"><span class="em">传说</span>,</span>
-          <span v-else><span class="em">{{result.highest.level}}级{{result.highest.star}}星</span>,</span>
+          <span v-if="result.highest.level === 0"><span class="color-primary">传说</span>,</span>
+          <span v-else><span class="color-primary">{{result.highest.level}}级{{result.highest.star}}星</span>,</span>
         </span>
         <strong>真实胜率:</strong>
-        <span class="em">{{Number.parseInt(result.realRate)}}%</span>
+        <span class="color-primary">{{Number.parseInt(result.realRate)}}%</span>
       </p>
 
       <h2>{{lang.h2.chart}}</h2>
@@ -51,12 +51,10 @@
           v-if="index !== 0 && item !== undefined"
           v-show="(toggle.levelDetail && (index <= 10 || result['levelDetail'][index - 10] === undefined)) || (!toggle.levelDetail)"
         >
-          <span style="display: inline-block; min-width: 100px;">
-            <strong>{{index}}级:</strong>
-            {{item.num}}场,
+          <span style="display: inline-block; min-width: 110px;">
+            <strong>{{index}}级：</strong>{{item.num}}场，
           </span>
-          <strong>胜率:</strong>
-          {{Number.parseInt(item.win / item.num * 100)}}%
+          <strong>胜率：</strong><span v-bind:class="{'color-primary': item.win/item.num >= 0.5, 'color-secondary': item.win/item.num < 0.5}">{{Number.parseInt(item.win/item.num*100)}}%</span>
         </li>
         <li v-show="toggle.levelDetail && result.levelDetail.filter((item, index) => index !== 0 && item !== undefined).length > 10">...</li>
       </ul>
@@ -74,8 +72,7 @@
           v-if="item.level !== 0 || (item.level === 0 && result['detail'][index - 1]['level'] !== 0)"
           v-show="(toggle.gameNum && index + 1 <= 10) || (!toggle.gameNum)"
         >
-          <strong>{{item.win ? '胜' : '负'}},</strong>
-          <span v-if="item.level === 0">传说</span>
+          <strong v-if="item.win" class="color-primary">胜</strong><strong v-else class="color-secondary">负</strong>，<span v-if="item.level === 0">传说</span>
           <span v-else>{{item.level}}级{{item.star}}星</span>
         </li>
         <li v-show="toggle.gameNum && result.detail.length > 10">...</li>
@@ -91,7 +88,7 @@
     </h2>
     <ol v-show="!toggle.rule">
       <li v-for="item in lang.content.rule">
-        <strong>{{item.label}}:</strong> {{item.text}}
+        <strong>{{item.label}}：</strong>{{item.text}}
       </li>
     </ol>
 
@@ -175,7 +172,7 @@ let initLevelChart = (data) => {
       },
       yAxis: {
         name: '等级',
-        max: 25,
+        max: 25 - data.highest.level,
         min: 25 - data.lowest.level,
         interval: 1,
         axisLabel: {
@@ -248,15 +245,29 @@ export default {
 <style>
 body {
   background: url(../assets/img/bg.jpg) center top;
-  color: #552c09;
+  color: #5b4b38;
 }
+h1, h2, h3, h4, h5, h6 {color: #552c09;}
+h1 {text-align: center;}
 h2 {
+  position: relative;
+  margin-top: 40px;
   padding-bottom: 10px;
-  border-bottom: 1px solid #552c09;
+  border-bottom: 1px solid #b7894c;
+}
+h2:after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 1px;
+  background-color: #fff;
 }
 button {outline: none; cursor: pointer;}
 
-.em {color: #d25300;}
+.color-primary {color: #d25300;}
+.color-secondary {color: #113F68;}
 .clickable {cursor: pointer;}
 .input-text {width: 60px; outline: none;}
 .btn {
