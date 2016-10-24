@@ -118,6 +118,14 @@ class Player {
       if (this.star > this.highest.star) this.highest.star = this.star
     }
 
+    /* 最低等级 */
+    if (this.level > this.lowest.level) {
+      this.lowest.level = this.level
+      this.lowest.star = this.star
+    } else if (this.level === this.lowest.level) {
+      if (this.star < this.lowest.star) this.lowest.star = this.star
+    }
+
     /* 返回结果 */
     return {
       win: result,
@@ -140,9 +148,10 @@ class Player {
     this.legendNum = 0 // 上传说所用场次
     this.levelDetail = [] // 每个等级所用场次
     this.highest = {
-      level: 25,
-      star: 0
+      level: this.level,
+      star: this.star
     }
+    this.lowest = helper.cloneObj(this.highest)
 
     let detail = []
     for (let i = 0; i <= num - 1; i++) {
@@ -157,6 +166,7 @@ class Player {
       realRate: this.winNum / this.gameNum * 100,
       levelDetail: this.levelDetail,
       highest: this.highest,
+      lowest: this.lowest,
       detail
     }
   }

@@ -146,6 +146,7 @@ let calc = (rate, level, star, num) => {
     window.alert(`请填写正确的“${map[result['err'][0]]}”！`)
   }
 }
+
 let initLevelChart = (data) => {
   setTimeout(() => {
     let chart = echarts.init(document.getElementById('levelChart'))
@@ -174,6 +175,8 @@ let initLevelChart = (data) => {
       },
       yAxis: {
         name: '等级',
+        max: 25,
+        min: 25 - data.lowest.level,
         interval: 1,
         axisLabel: {
           formatter: function (v) {
