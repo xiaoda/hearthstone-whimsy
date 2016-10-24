@@ -10,9 +10,6 @@ class Player {
     this.star = star // 星星数
     this.streakNum = streakNum // 连胜场次
     this.streak = this.streakNum >= this.game.streakNum // 是否连胜
-
-    this.gameTotalNum = 0 // 总场次
-    this.winTotalNum = 0 // 获胜总场次
   }
 
   /* 重置玩家数据 */
@@ -21,8 +18,6 @@ class Player {
       this[key] = options[key]
     })
     this.streak = this.streakNum >= this.game.streakNum
-    this.gameTotalNum = 0
-    this.winTotalNum = 0
   }
 
   /* 参数检查 */
@@ -48,24 +43,8 @@ class Player {
 
   /* 玩游戏（私有方法） */
   _play () {
-    this.gameNum++
-    this.gameTotalNum++
-
     let result = this.game.round(this.rate) // 游戏结果
     let levels = this.game.levels
-
-    if (result) {
-      this.winNum++
-      this.winTotalNum++
-    }
-
-    if (this['levelDetail'][this.level] === undefined) {
-      this['levelDetail'][this.level] = {}
-      this['levelDetail'][this.level]['num'] = 0
-      this['levelDetail'][this.level]['win'] = 0
-    }
-    this['levelDetail'][this.level]['num']++
-    this['levelDetail'][this.level]['win'] += Number(result)
 
     /* 传说 */
     if (this.level === 0) {
@@ -75,6 +54,19 @@ class Player {
         star: this.star
       }
     }
+
+    /* 场次递增 */
+    this.gameNum++
+    if (result) this.winNum++
+
+    /* 等级详情 */
+    if (this['levelDetail'][this.level] === undefined) {
+      this['levelDetail'][this.level] = {}
+      this['levelDetail'][this.level]['num'] = 0
+      this['levelDetail'][this.level]['win'] = 0
+    }
+    this['levelDetail'][this.level]['num']++
+    this['levelDetail'][this.level]['win'] += Number(result)
 
     /* 连胜逻辑 */
     if (levels[this['level']]['streak']) {
