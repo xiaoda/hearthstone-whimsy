@@ -1,5 +1,5 @@
 export default {
-  h1: '炉石传说模拟器',
+  h1: '传说模拟器',
   h2: {
     condition: '条件',
     result: '结果',

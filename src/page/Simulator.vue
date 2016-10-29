@@ -1,107 +1,112 @@
 <template>
-  <div class="page simulator-page">
-    <h1>{{lang.h1}}</h1>
-
-    <h2 style="margin-top: 20px;">{{lang.h2.condition}}</h2>
-    <p>
-      <strong>玩家胜率:</strong>
-      <input class="input-text" type="number" v-model="rate" v-on:keyup.enter="calc"/> %,
-      <strong>初始等级:</strong>
-      <input class="input-text" type="number" v-model="level" v-on:keyup.enter="calc"/> 级
-      <input class="input-text" type="number" v-model="star" v-on:keyup.enter="calc"/> 星,
-      <strong>场次:</strong>
-      <input class="input-text" type="number" v-model="num" v-on:keyup.enter="calc"/>
-      <br/>
-    </p>
-    <div>
-      <button class="btn" style="margin-right: 5px;" v-on:click="calc">开始计算</button>
-      <button class="btn" style="margin-right: 5px;" v-on:click="clear">清空结果</button>
-      <button class="btn" style="margin-right: 5px;" v-on:click="reset">重置条件</button>
+  <div class="page-wrapper simulator-page">
+    <div class="logo-wrapper">
+      <div class="logo"></div>
     </div>
+    <div class="page">
+      <h1>{{lang.h1}}</h1>
 
-    <div v-if="Object.keys(result).length">
-      <h2>{{lang.h2.result}}</h2>
-
+      <h2 style="margin-top: 20px;">{{lang.h2.condition}}</h2>
       <p>
-        <strong>最终等级:</strong>
-        <span v-if="result.level === 0"><span class="color-primary">传说</span>({{result.legendNum}}场上传说),</span>
-        <span v-else><span class="color-primary">{{result.level}}级{{result.star}}星</span>,</span>
-        <span v-if="result.level !== 0">
-          <strong>最高等级:</strong>
-          <span v-if="result.highest.level === 0"><span class="color-primary">传说</span>,</span>
-          <span v-else><span class="color-primary">{{result.highest.level}}级{{result.highest.star}}星</span>,</span>
-        </span>
-        <strong>真实胜率:</strong>
-        <span class="color-primary">{{Number.parseInt(result.realRate)}}%</span>
+        <strong>玩家胜率:</strong>
+        <input class="input-text" type="number" v-model="rate" v-on:keyup.enter="calc"/> %,
+        <strong>初始等级:</strong>
+        <input class="input-text" type="number" v-model="level" v-on:keyup.enter="calc"/> 级
+        <input class="input-text" type="number" v-model="star" v-on:keyup.enter="calc"/> 星,
+        <strong>场次:</strong>
+        <input class="input-text" type="number" v-model="num" v-on:keyup.enter="calc"/>
+        <br/>
       </p>
+      <div>
+        <button class="btn" style="margin-right: 5px;" v-on:click="calc">开始计算</button>
+        <button class="btn" style="margin-right: 5px;" v-on:click="clear">清空结果</button>
+        <button class="btn" style="margin-right: 5px;" v-on:click="reset">重置条件</button>
+      </div>
 
-      <h2>{{lang.h2.chart}}</h2>
-      <div id="levelChart"></div>
+      <div v-if="Object.keys(result).length">
+        <h2>{{lang.h2.result}}</h2>
 
-      <h2>
-        <span class="clickable" v-on:click="toggle.levelDetail = !toggle.levelDetail">
-          {{lang.h2.detailByLevel}}
-          <span v-show="toggle.levelDetail">+</span>
-          <span v-show="!toggle.levelDetail">-</span>
-        </span>
-      </h2>
-      <ul>
-        <li
-          v-for="(item, index) in result.levelDetail"
-          v-if="index !== 0 && item !== undefined"
-          v-show="(toggle.levelDetail && (index <= 10 || result['levelDetail'][index - 10] === undefined)) || (!toggle.levelDetail)"
-        >
-          <span style="display: inline-block; min-width: 110px;">
-            <strong>{{index}}级：</strong>{{item.num}}场，
+        <p>
+          <strong>最终等级:</strong>
+          <span v-if="result.level === 0"><span class="color-primary">传说</span>({{result.legendNum}}场上传说),</span>
+          <span v-else><span class="color-primary">{{result.level}}级{{result.star}}星</span>,</span>
+          <span v-if="result.level !== 0">
+            <strong>最高等级:</strong>
+            <span v-if="result.highest.level === 0"><span class="color-primary">传说</span>,</span>
+            <span v-else><span class="color-primary">{{result.highest.level}}级{{result.highest.star}}星</span>,</span>
           </span>
-          <strong>胜率：</strong><span v-bind:class="{'color-primary': item.win/item.num >= 0.5, 'color-secondary': item.win/item.num < 0.5}">{{Number.parseInt(item.win/item.num*100)}}%</span>
-        </li>
-        <li v-show="toggle.levelDetail && result.levelDetail.filter((item, index) => index !== 0 && item !== undefined).length > 10">...</li>
-      </ul>
+          <strong>真实胜率:</strong>
+          <span class="color-primary">{{Number.parseInt(result.realRate)}}%</span>
+        </p>
+
+        <h2>{{lang.h2.chart}}</h2>
+        <div id="levelChart"></div>
+
+        <h2>
+          <span class="clickable" v-on:click="toggle.levelDetail = !toggle.levelDetail">
+            {{lang.h2.detailByLevel}}
+            <span v-show="toggle.levelDetail">+</span>
+            <span v-show="!toggle.levelDetail">-</span>
+          </span>
+        </h2>
+        <ul>
+          <li
+            v-for="(item, index) in result.levelDetail"
+            v-if="index !== 0 && item !== undefined"
+            v-show="(toggle.levelDetail && (index <= 10 || result['levelDetail'][index - 10] === undefined)) || (!toggle.levelDetail)"
+          >
+            <span style="display: inline-block; min-width: 110px;">
+              <strong>{{index}}级：</strong>{{item.num}}场，
+            </span>
+            <strong>胜率：</strong><span v-bind:class="{'color-primary': item.win/item.num >= 0.5, 'color-secondary': item.win/item.num < 0.5}">{{Number.parseInt(item.win/item.num*100)}}%</span>
+          </li>
+          <li v-show="toggle.levelDetail && result.levelDetail.filter((item, index) => index !== 0 && item !== undefined).length > 10">...</li>
+        </ul>
+
+        <h2>
+          <span class="clickable" v-on:click="toggle.gameNum = !toggle.gameNum">
+            {{lang.h2.detailByRound}}
+            <span v-show="toggle.gameNum">+</span>
+            <span v-show="!toggle.gameNum">-</span>
+          </span>
+        </h2>
+        <ol>
+          <li
+            v-for="(item, index) in result.detail"
+            v-if="item.level !== 0 || (item.level === 0 && result['detail'][index - 1]['level'] !== 0)"
+            v-show="(toggle.gameNum && index + 1 <= 10) || (!toggle.gameNum)"
+          >
+            <strong v-if="item.win" class="color-primary">胜</strong><strong v-else class="color-secondary">负</strong>，<span v-if="item.level === 0">传说</span>
+            <span v-else>{{item.level}}级{{item.star}}星</span>
+          </li>
+          <li v-show="toggle.gameNum && result.detail.length > 10">...</li>
+        </ol>
+      </div>
 
       <h2>
-        <span class="clickable" v-on:click="toggle.gameNum = !toggle.gameNum">
-          {{lang.h2.detailByRound}}
-          <span v-show="toggle.gameNum">+</span>
-          <span v-show="!toggle.gameNum">-</span>
+        <span class="clickable" v-on:click="toggle.rule = !toggle.rule">
+          {{lang.h2.rule}}
+          <span v-show="toggle.rule">+</span>
+          <span v-show="!toggle.rule">-</span>
         </span>
       </h2>
-      <ol>
-        <li
-          v-for="(item, index) in result.detail"
-          v-if="item.level !== 0 || (item.level === 0 && result['detail'][index - 1]['level'] !== 0)"
-          v-show="(toggle.gameNum && index + 1 <= 10) || (!toggle.gameNum)"
-        >
-          <strong v-if="item.win" class="color-primary">胜</strong><strong v-else class="color-secondary">负</strong>，<span v-if="item.level === 0">传说</span>
-          <span v-else>{{item.level}}级{{item.star}}星</span>
+      <ol v-show="!toggle.rule">
+        <li v-for="item in lang.content.rule">
+          <strong>{{item.label}}：</strong>{{item.text}}
         </li>
-        <li v-show="toggle.gameNum && result.detail.length > 10">...</li>
+      </ol>
+
+      <h2>
+        <span class="clickable" v-on:click="toggle.hypothesis = !toggle.hypothesis">
+          {{lang.h2.hypothesis}}
+          <span v-show="toggle.hypothesis">+</span>
+          <span v-show="!toggle.hypothesis">-</span>
+        </span>
+      </h2>
+      <ol v-show="!toggle.hypothesis">
+        <li v-for="item in lang.content.hypothesis">{{item}}</li>
       </ol>
     </div>
-
-    <h2>
-      <span class="clickable" v-on:click="toggle.rule = !toggle.rule">
-        {{lang.h2.rule}}
-        <span v-show="toggle.rule">+</span>
-        <span v-show="!toggle.rule">-</span>
-      </span>
-    </h2>
-    <ol v-show="!toggle.rule">
-      <li v-for="item in lang.content.rule">
-        <strong>{{item.label}}：</strong>{{item.text}}
-      </li>
-    </ol>
-
-    <h2>
-      <span class="clickable" v-on:click="toggle.hypothesis = !toggle.hypothesis">
-        {{lang.h2.hypothesis}}
-        <span v-show="toggle.hypothesis">+</span>
-        <span v-show="!toggle.hypothesis">-</span>
-      </span>
-    </h2>
-    <ol v-show="!toggle.hypothesis">
-      <li v-for="item in lang.content.hypothesis">{{item}}</li>
-    </ol>
   </div>
 </template>
 
@@ -251,7 +256,7 @@ h1, h2, h3, h4, h5, h6 {color: #552c09;}
 h1 {text-align: center;}
 h2 {
   position: relative;
-  margin-top: 40px;
+  margin-top: 30px;
   padding-bottom: 10px;
   border-bottom: 1px solid #b7894c;
 }
@@ -276,13 +281,26 @@ button {outline: none; cursor: pointer;}
   background-color: #5d1477;
   color: #fff;
 }
-.page {
+.page-wrapper {
   width: 600px;
-  margin: 30px auto;
+  margin: 20px auto;
+}
+.page {
   padding: 0 15px;
   border: 1px solid transparent;
   box-shadow: 0 0 20px #552c09;
   background-color: rgba(255, 255, 255, 0.7);
+}
+.logo-wrapper {
+  margin-bottom: 20px;
+  text-align: center;
+}
+.logo {
+  display: inline-block;
+  width: 263px;
+  height: 98px;
+  background-image: url(../assets/img/logo.png);
+  background-size: 100%;
 }
 </style>
 
